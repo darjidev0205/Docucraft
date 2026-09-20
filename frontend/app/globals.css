@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ink: #17181C;
+  --color-paper: #FBFBFA;
+  --color-paper-pure: #FFFFFF;
+  --color-paper-card: #F4F4F0;
+  --color-paper-border: #E8E8E3;
+  --color-brand-orange: #FFA259;
+  --color-brand-coral: #FF7E7E;
+  --color-brand-yellow: #FFCB56;
+  --color-brand-cream: #FFEDB9;
+}
+
+body {
+  color: #17181C;
+  background-color: #FBFBFA;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Crisp tactile scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8DAE0;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8B909E;
+}
+
+/* TipTap ProseMirror content styling inside Document Canvas */
+.ProseMirror {
+  outline: none;
+  min-height: 100%;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #8B909E;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+  line-height: 1.25;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+  color: #17181C;
+}
+
+.ProseMirror h1 { font-size: 2em; font-weight: 800; }
+.ProseMirror h2 { font-size: 1.5em; font-weight: 700; }
+.ProseMirror h3 { font-size: 1.2em; font-weight: 600; }
+
+.ProseMirror p {
+  margin-top: 0;
+  margin-bottom: 0.8em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin-top: 0;
+  margin-bottom: 0.8em;
+}
+
+.ProseMirror ul { list-style-type: disc; }
+.ProseMirror ol { list-style-type: decimal; }
+
+.ProseMirror blockquote {
+  border-left: 3px solid #FFA259;
+  padding-left: 1em;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  color: #33363F;
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid #E8E8E3;
+  margin: 1.5em 0;
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  margin: 1em 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.ProseMirror td,
+.ProseMirror th {
+  border: 1px solid #D8DAE0;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  position: relative;
+  vertical-align: top;
+}
+
+.ProseMirror th {
+  font-weight: 600;
+  text-align: left;
+  background-color: #F7F7F5;
+  color: #17181C;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.ProseMirror code {
+  background-color: #F4F4F0;
+  border-radius: 3px;
+  padding: 0.15em 0.35em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88em;
+  color: #17181C;
+}
+
+/* Print CSS: Hides all UI and prints only document */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .no-print,
+  nav,
+  aside,
+  header.app-header,
+  .editor-sidebar,
+  .editor-toolbar,
+  .preview-toolbar,
+  .editor-status,
+  .btn-print {
+    display: none !important;
+  }
+
+  .print-container {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .printable-page {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+}
