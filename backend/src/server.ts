@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { ENV } from './config/env';
+import { corsOptions } from './config/cors';
 import { errorHandler } from './middleware/error.middleware';
 
 import authRoutes from './routes/auth.routes';
@@ -15,20 +16,14 @@ import adminRoutes from './routes/admin.routes';
 
 const app = express();
 
-// Security headers
+// 1. CORS - MUST be first middleware so all preflight OPTIONS and actual requests receive correct headers
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// 2. Security headers
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
-  })
-);
-
-// CORS
-app.use(
-  cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 

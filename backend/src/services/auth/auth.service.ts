@@ -5,12 +5,13 @@ import { userRepository } from '../../repositories/user.repository';
 import { analyticsRepository } from '../../repositories/analytics.repository';
 import { ENV } from '../../config/env';
 import { SignupInput, LoginInput, AuthResponse } from '@docucraft/shared';
+import { AppError } from '../../middleware/error.middleware';
 
 export class AuthService {
   async signup(input: SignupInput): Promise<AuthResponse> {
     const existing = await userRepository.findByEmail(input.email);
     if (existing) {
-      throw new Error('An account with this email address already exists.');
+      throw new AppError('An account with this email address already exists.', 409);
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -41,12 +42,12 @@ export class AuthService {
   async login(input: LoginInput): Promise<AuthResponse> {
     const user = await userRepository.findByEmail(input.email);
     if (!user) {
-      throw new Error('Invalid email or password.');
+      throw new AppError('Invalid email or password.', 401);
     }
 
     const isMatch = await bcrypt.compare(input.password, user.passwordHash);
     if (!isMatch) {
-      throw new Error('Invalid email or password.');
+      throw new AppError('Invalid email or password.', 401);
     }
 
     await analyticsRepository.trackEvent('LOGIN', { userId: user.id });
@@ -86,7 +87,7 @@ export class AuthService {
   async resetPassword(token: string, newPass: string): Promise<{ message: string }> {
     const resetRecord = await userRepository.findResetToken(token);
     if (!resetRecord || resetRecord.expiresAt < new Date()) {
-      throw new Error('Password reset token is invalid or has expired.');
+      throw new AppError('Password reset token is invalid or has expired.', 400);
     }
 
     const salt = await bcrypt.genSalt(10);

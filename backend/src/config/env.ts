@@ -14,4 +14,6 @@ export const ENV = {
   MAX_UPLOAD_SIZE_MB: parseInt(process.env.MAX_UPLOAD_SIZE_MB || '10', 10),
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@docucraft.io',
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'AdminPassword123!',
+  FRONTEND_URL: process.env.FRONTEND_URL || 'https://docucraft-frontend.vercel.app',
+  CORS_ORIGIN: process.env.CORS_ORIGIN || '',
 };
