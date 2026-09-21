@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import fs from 'fs';
 import { ENV } from './config/env';
 import { corsOptions } from './config/cors';
 import { errorHandler } from './middleware/error.middleware';
@@ -76,6 +77,15 @@ app.use('/admin', adminRoutes);
 
 // Global error handler
 app.use(errorHandler);
+
+// Ensure ephemeral filesystem has required upload directories created
+try {
+  if (!fs.existsSync(ENV.UPLOAD_DIR)) {
+    fs.mkdirSync(ENV.UPLOAD_DIR, { recursive: true });
+  }
+} catch (dirErr: any) {
+  console.warn(`[Server] Warning creating upload dir: ${dirErr?.message}`);
+}
 
 // Start server
 const PORT = ENV.PORT;

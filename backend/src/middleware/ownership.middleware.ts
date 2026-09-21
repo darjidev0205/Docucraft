@@ -8,10 +8,17 @@ export interface DocumentRequest extends AuthenticatedRequest {
 }
 
 export async function ownershipMiddleware(req: DocumentRequest, res: Response, next: NextFunction) {
+  const documentId = req.params.id || req.params.documentId;
+  const userId = req.user?.id;
+
   try {
-    const documentId = req.params.id || req.params.documentId;
     if (!documentId) {
       return res.status(400).json({ error: 'Document ID is required.' });
+    }
+
+    // Guard against malformed MongoDB ObjectId before calling database
+    if (!/^[0-9a-fA-F]{24}$/.test(documentId)) {
+      return res.status(404).json({ error: 'Document not found.' });
     }
 
     if (!req.user) {
@@ -30,7 +37,14 @@ export async function ownershipMiddleware(req: DocumentRequest, res: Response, n
 
     req.document = document;
     next();
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[OwnershipMiddleware] ❌ Error verifying document ownership:', {
+      documentId,
+      userId,
+      errorName: error?.name,
+      errorMessage: error?.message,
+      stack: error?.stack,
+    });
     return res.status(500).json({ error: 'Failed to verify document ownership.' });
   }
 }

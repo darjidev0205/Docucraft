@@ -6,6 +6,10 @@ import { DocumentModel } from '@docucraft/shared';
 
 export class PdfController {
   async download(req: DocumentRequest, res: Response, next: NextFunction) {
+    const documentId = req.params.id;
+    const userId = req.user?.id;
+    console.log(`[PDF Controller] Download initiated for document ${documentId} by user ${userId}`);
+
     try {
       // Document is guaranteed authenticated and ownership-verified by middlewares
       let document: DocumentModel = req.document!;
@@ -20,10 +24,14 @@ export class PdfController {
         };
       }
 
+      console.log(`[PDF Controller] Rendering PDF buffer for document '${document.title}' (pages=${document.pages?.length || 0})`);
       const pdfBuffer = await generatePdfBuffer(document);
+      console.log(`[PDF Controller] ✅ Generated PDF buffer (${pdfBuffer.length} bytes)`);
 
-      // Track export analytics
-      await analyticsRepository.trackPdfExport(document.id, req.user!.id, pdfBuffer.length);
+      // Track export analytics asynchronously (non-blocking for response)
+      analyticsRepository.trackPdfExport(document.id, req.user!.id, pdfBuffer.length).catch((err) => {
+        console.warn('[PDF Controller] ⚠️ Non-fatal: failed to record export analytics event:', err?.message || err);
+      });
 
       const sanitizedTitle = (document.title || 'document')
         .replace(/[^a-zA-Z0-9_-]/g, '_')
@@ -35,7 +43,14 @@ export class PdfController {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
       res.end(pdfBuffer);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('[PDF Controller] ❌ Error generating PDF for download:', {
+        documentId,
+        userId,
+        errorName: error?.name,
+        errorMessage: error?.message,
+        stack: error?.stack,
+      });
       next(error);
     }
   }

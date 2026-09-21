@@ -76,19 +76,28 @@ async function executeGenerationJob(
     });
     documentLoadTime = performance.now() - tDocLoadStart;
 
-    // Step 4: Font readiness verification via document.fonts.ready & check()
+    // Step 4: Font readiness verification with timeout safety
     const tFontStart = performance.now();
-    await page.evaluate(async (fontsToCheck) => {
-      // Wait for fonts subsystem ready
-      await (document as any).fonts.ready;
-
-      // Verify each required font family is available
-      for (const font of fontsToCheck) {
+    await page
+      .evaluate(async (fontsToCheck) => {
         try {
-          (document as any).fonts.check(`16px "${font}"`);
+          // Wait for fonts subsystem ready with 3s timeout
+          await Promise.race([
+            (document as any).fonts?.ready,
+            new Promise((resolve) => setTimeout(resolve, 3000)),
+          ]);
+
+          // Verify each required font family is available
+          for (const font of fontsToCheck) {
+            try {
+              (document as any).fonts?.check(`16px "${font}"`);
+            } catch {}
+          }
         } catch {}
-      }
-    }, usedFonts);
+      }, usedFonts)
+      .catch((err) => {
+        console.warn('[PDF Generator] Font check warning (non-fatal):', err?.message);
+      });
     fontLoadTime = performance.now() - tFontStart;
 
     // Step 5: Generate physical PDF with exact page geometry

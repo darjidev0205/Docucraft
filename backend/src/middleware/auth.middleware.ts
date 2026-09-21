@@ -24,8 +24,13 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
       return res.status(401).json({ error: 'Missing authentication token.' });
     }
 
-    const decoded = jwt.verify(token, ENV.JWT_SECRET) as { userId: string };
-    const user = await userRepository.findById(decoded.userId);
+    const decoded = jwt.verify(token, ENV.JWT_SECRET) as any;
+    const userId = decoded?.userId || decoded?.id;
+    if (!userId || !/^[0-9a-fA-F]{24}$/.test(userId)) {
+      return res.status(401).json({ error: 'Invalid session payload.' });
+    }
+
+    const user = await userRepository.findById(userId);
 
     if (!user) {
       return res.status(401).json({ error: 'User account not found or session expired.' });
@@ -49,15 +54,18 @@ export async function optionalAuthMiddleware(req: AuthenticatedRequest, res: Res
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(token, ENV.JWT_SECRET) as { userId: string };
-      const user = await userRepository.findById(decoded.userId);
-      if (user) {
-        req.user = {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          name: user.name,
-        };
+      const decoded = jwt.verify(token, ENV.JWT_SECRET) as any;
+      const userId = decoded?.userId || decoded?.id;
+      if (userId && /^[0-9a-fA-F]{24}$/.test(userId)) {
+        const user = await userRepository.findById(userId);
+        if (user) {
+          req.user = {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            name: user.name,
+          };
+        }
       }
     }
   } catch {
