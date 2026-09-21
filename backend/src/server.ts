@@ -13,8 +13,12 @@ import pdfRoutes from './routes/pdf.routes';
 import assetRoutes from './routes/asset.routes';
 import templateRoutes from './routes/template.routes';
 import adminRoutes from './routes/admin.routes';
+import { checkDatabaseConnection } from './config/database';
 
 const app = express();
+
+// Trust reverse proxy headers (Render/Cloudflare) - fixes ERR_ERL_UNEXPECTED_X_FORWARDED_FOR
+app.set('trust proxy', 1);
 
 // 1. CORS - MUST be first middleware so all preflight OPTIONS and actual requests receive correct headers
 app.use(cors(corsOptions));
@@ -75,10 +79,11 @@ app.use(errorHandler);
 
 // Start server
 const PORT = ENV.PORT;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 DocuCraft Backend running on port ${PORT}`);
   console.log(`📁 Upload directory: ${ENV.UPLOAD_DIR}`);
   console.log(`🔒 Environment: ${ENV.NODE_ENV}`);
+  await checkDatabaseConnection();
 });
 
 export default app;
