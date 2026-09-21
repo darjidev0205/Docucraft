@@ -54,13 +54,21 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// Mount routes
+// Mount API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/documents', pdfRoutes);
 app.use('/api/documents', assetRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Root path aliases (defense-in-depth against client prefix omissions)
+app.use('/auth', authRoutes);
+app.use('/documents', documentRoutes);
+app.use('/documents', pdfRoutes);
+app.use('/documents', assetRoutes);
+app.use('/templates', templateRoutes);
+app.use('/admin', adminRoutes);
 
 // Global error handler
 app.use(errorHandler);

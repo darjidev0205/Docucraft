@@ -161,6 +161,44 @@ const testCases: TestCase[] = [
       'access-control-allow-origin': null, // Must NOT be present
     },
   },
+  {
+    name: '10. POST /auth/login (root alias without /api prefix) from Vercel frontend',
+    method: 'POST',
+    path: '/auth/login',
+    origin: 'https://docucraft-frontend.vercel.app',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: {
+      email: 'admin@docucraft.io',
+      password: 'AdminPassword123!',
+    },
+    expectedStatus: 200,
+    expectedHeaders: {
+      'access-control-allow-origin': 'https://docucraft-frontend.vercel.app',
+      'access-control-allow-credentials': 'true',
+    },
+    expectBody: (b) => Boolean(b.token && b.user && b.user.email === 'admin@docucraft.io'),
+  },
+  {
+    name: '11. POST /auth/login (root alias) with invalid credentials returns 401 with CORS',
+    method: 'POST',
+    path: '/auth/login',
+    origin: 'https://docucraft-frontend.vercel.app',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: {
+      email: 'admin@docucraft.io',
+      password: 'BadPassword!',
+    },
+    expectedStatus: 401,
+    expectedHeaders: {
+      'access-control-allow-origin': 'https://docucraft-frontend.vercel.app',
+      'access-control-allow-credentials': 'true',
+    },
+    expectBody: (b) => b.error === 'Invalid email or password.',
+  },
 ];
 
 async function runTests() {

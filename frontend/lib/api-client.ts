@@ -1,4 +1,38 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+function getBaseUrl(): string {
+  let base = process.env.NEXT_PUBLIC_API_URL;
+  if (!base) {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      base = 'http://localhost:4000';
+    } else {
+      base = 'https://docucraft-3xs5.onrender.com';
+    }
+  }
+
+  // Strip trailing slashes
+  base = base.replace(/\/+$/, '');
+
+  // If base ends with /api, strip it so base is cleanly the host/origin
+  if (base.endsWith('/api')) {
+    base = base.slice(0, -4);
+  }
+
+  return base;
+}
+
+export function buildApiUrl(endpoint: string): string {
+  const base = getBaseUrl();
+  let path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  // Ensure the route has the /api prefix expected by backend
+  if (!path.startsWith('/api/') && path !== '/api') {
+    path = `/api${path}`;
+  }
+
+  // Prevent accidental /api/api/... duplication
+  path = path.replace(/^\/api\/api(\/|$)/, '/api$1');
+
+  return `${base}${path}`;
+}
 
 class ApiClient {
   private getToken(): string | null {
@@ -16,8 +50,14 @@ class ApiClient {
   }
 
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const url = buildApiUrl(endpoint);
+    const method = options.method || 'GET';
     const token = this.getToken();
+
+    // Safe development / auth route logging (never logs bodies, passwords, or tokens)
+    if (process.env.NODE_ENV === 'development' || (typeof window !== 'undefined' && endpoint.includes('/auth/'))) {
+      console.log(`[DocuCraft API] ${method} -> ${url}`);
+    }
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -34,6 +74,7 @@ class ApiClient {
     });
 
     if (!response.ok) {
+      console.error(`[DocuCraft API Error] ${method} ${url} -> HTTP ${response.status}`);
       let errorMessage = 'An error occurred';
       try {
         const errJson = await response.json();
@@ -78,7 +119,7 @@ class ApiClient {
 
   // Upload file (multipart/form-data)
   async uploadFile<T>(endpoint: string, file: File): Promise<T> {
-    const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const url = buildApiUrl(endpoint);
     const token = this.getToken();
 
     const formData = new FormData();
@@ -105,7 +146,7 @@ class ApiClient {
 
   // Protected PDF Download stream
   async downloadPdf(documentId: string, documentPayload?: any): Promise<Blob> {
-    const url = `${API_BASE}/documents/${documentId}/download`;
+    const url = buildApiUrl(`/documents/${documentId}/download`);
     const token = this.getToken();
 
     if (!token) {
