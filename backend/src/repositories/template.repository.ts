@@ -1,4 +1,5 @@
 import { prisma } from '../config/database';
+import { Template } from '@prisma/client';
 import { TemplateDefinition } from '@docucraft/shared';
 
 export class TemplateRepository {
@@ -11,7 +12,7 @@ export class TemplateRepository {
       where,
       orderBy: { name: 'asc' },
     });
-    return templates.map((t) => JSON.parse(t.configJson) as TemplateDefinition);
+    return templates.map((t: Template) => JSON.parse(t.configJson) as TemplateDefinition);
   }
 
   async findById(id: string): Promise<TemplateDefinition | null> {

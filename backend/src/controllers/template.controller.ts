@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { templateRepository } from '../repositories/template.repository';
-import { TEMPLATES, getTemplateById } from '@docucraft/shared';
+import { TEMPLATES, getTemplateById, TemplateDefinition } from '@docucraft/shared';
 
 export class TemplateController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -12,7 +12,7 @@ export class TemplateController {
       }
       // Fallback to static registry if DB has not been seeded yet
       const filtered = category && category !== 'All'
-        ? TEMPLATES.filter((t) => t.category === category)
+        ? TEMPLATES.filter((t: TemplateDefinition) => t.category === category)
         : TEMPLATES;
       res.status(200).json(filtered);
     } catch (error) {

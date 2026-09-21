@@ -37,13 +37,27 @@ export class BrowserPool {
   }
 
   private getExecutablePath(): string {
+    const envPaths = [
+      process.env.PUPPETEER_EXECUTABLE_PATH,
+      process.env.CHROME_BIN,
+      process.env.CHROME_PATH,
+    ].filter(Boolean) as string[];
+
+    for (const p of envPaths) {
+      if (fs.existsSync(p)) return p;
+    }
+
     const possiblePaths = [
+      '/usr/bin/google-chrome-stable',
+      '/usr/bin/google-chrome',
+      '/usr/bin/chromium',
+      '/usr/bin/chromium-browser',
+      '/snap/bin/chromium',
+      '/usr/local/bin/chrome',
       'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
       'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
       'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
       'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-      '/usr/bin/google-chrome',
-      '/usr/bin/chromium-browser',
       '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     ];
 
@@ -53,7 +67,7 @@ export class BrowserPool {
       }
     }
 
-    return process.env.CHROME_PATH || 'chrome';
+    return envPaths[0] || 'google-chrome-stable';
   }
 
   /**

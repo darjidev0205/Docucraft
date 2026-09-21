@@ -1,4 +1,5 @@
 import { prisma } from '../config/database';
+import { AnalyticsEvent } from '@prisma/client';
 
 export class AnalyticsRepository {
   async trackEvent(eventType: string, metadata?: Record<string, any>) {
@@ -41,7 +42,7 @@ export class AnalyticsRepository {
       totalDocuments,
       totalPdfExports,
       totalTemplates,
-      recentEvents: recentEvents.map((e) => ({
+      recentEvents: recentEvents.map((e: AnalyticsEvent) => ({
         id: e.id,
         eventType: e.eventType,
         metadata: e.metadata ? JSON.parse(e.metadata) : null,

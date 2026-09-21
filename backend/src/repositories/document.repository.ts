@@ -1,4 +1,5 @@
 import { prisma } from '../config/database';
+import { Document, DocumentAsset } from '@prisma/client';
 import { DocumentModel, DocumentSettings, DocumentPage } from '@docucraft/shared';
 
 export class DocumentRepository {
@@ -80,7 +81,7 @@ export class DocumentRepository {
     ]);
 
     return {
-      documents: docs.map((d) => this.mapToModel(d)),
+      documents: docs.map((d: Document & { assets?: DocumentAsset[] }) => this.mapToModel(d)),
       total,
     };
   }
@@ -162,7 +163,7 @@ export class DocumentRepository {
     return prisma.document.count();
   }
 
-  private mapToModel(raw: any): DocumentModel {
+  private mapToModel(raw: Document & { assets?: DocumentAsset[] }): DocumentModel {
     return {
       id: raw.id,
       userId: raw.userId,
@@ -170,7 +171,7 @@ export class DocumentRepository {
       templateId: raw.templateId,
       settings: JSON.parse(raw.settingsJson),
       pages: JSON.parse(raw.contentJson),
-      assets: raw.assets?.map((a: any) => ({
+      assets: raw.assets?.map((a: DocumentAsset) => ({
         id: a.id,
         documentId: a.documentId,
         fileName: a.fileName,

@@ -7,7 +7,7 @@ export class DocumentService {
   async createDocument(userId: string, input: CreateDocumentInput): Promise<DocumentModel> {
     const template = (await templateRepository.findById(input.templateId)) || getTemplateById(input.templateId);
 
-    let initialPages = template.sampleContent.pages.map((p, idx) => ({
+    let initialPages = template.sampleContent.pages.map((p: { contentHtml: string }, idx: number) => ({
       id: `page-${idx + 1}`,
       pageNumber: idx + 1,
       contentHtml: p.contentHtml,

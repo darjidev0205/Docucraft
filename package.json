@@ -10,10 +10,14 @@
   "scripts": {
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev --workspace=@docucraft/backend\" \"npm run dev --workspace=@docucraft/frontend\"",
     "build:shared": "npm run build --workspace=@docucraft/shared",
+    "build:backend": "npm run build --workspace=@docucraft/backend",
+    "build:frontend": "npm run build --workspace=@docucraft/frontend",
     "build": "npm run build:shared && npm run build --workspace=@docucraft/backend && npm run build --workspace=@docucraft/frontend",
-    "start": "concurrently \"npm run start --workspace=backend\" \"npm run start --workspace=frontend\"",
-    "db:push": "npm run prisma:push --workspace=backend",
-    "db:seed": "npm run prisma:seed --workspace=backend"
+    "start": "concurrently \"npm run start --workspace=@docucraft/backend\" \"npm run start --workspace=@docucraft/frontend\"",
+    "start:backend": "npm run start --workspace=@docucraft/backend",
+    "start:frontend": "npm run start --workspace=@docucraft/frontend",
+    "db:push": "npm run prisma:push --workspace=@docucraft/backend",
+    "db:seed": "npm run prisma:seed --workspace=@docucraft/backend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

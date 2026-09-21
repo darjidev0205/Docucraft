@@ -17,8 +17,8 @@ function getGoogleFontUrl(fonts: string[]): string {
   };
 
   const families = fonts
-    .filter((f, idx, arr) => arr.indexOf(f) === idx)
-    .map((f) => `family=${encodeURIComponent(f)}${fontWeights[f] || ':wght@400;600;700'}`)
+    .filter((f: string, idx: number, arr: string[]) => arr.indexOf(f) === idx)
+    .map((f: string) => `family=${encodeURIComponent(f)}${fontWeights[f] || ':wght@400;600;700'}`)
     .join('&');
 
   return `https://fonts.googleapis.com/css2?${families}&display=swap`;
